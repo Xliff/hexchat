@@ -251,7 +251,7 @@ static int handle_keyx_notice(char *word[], char *word_eol[], void *userdata) {
         hexchat_set_context(ph, query_ctx);
 
     dh_message++; /* : prefix */
-    if (*dh_message == '+')
+    if (*dh_message == '+' || *dh_message == '-')
         dh_message++; /* identify-msg */
 
     cbc = g_strcmp0 (word[6], "CBC") == 0;
