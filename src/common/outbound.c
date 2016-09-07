@@ -1538,8 +1538,9 @@ exec_handle_colors (char *buf, int len)
 {
 	char numb[16];
 	char *nbuf;
-	int i = 0, j = 0, k = 0, firstn = 0, col, colf = 0, colb = 0;
+	int i = 0, j = 0, k = 0, firstn = 0, col, colf = 0, colb = 0, en = 0;
 	int esc = FALSE, backc = FALSE, bold = FALSE;
+	int escnum[5];
 
 	/* any escape codes in this text? */
 	if (strchr (buf, 27) == 0)
@@ -1561,7 +1562,7 @@ exec_handle_colors (char *buf, int len)
 				goto norm;
 			backc = TRUE;
 			numb[k] = 0;
-			firstn = atoi (numb);
+			escnum[en++] = firstn = atoi (numb);
 			k = 0;
 			break;
 		case '[':
@@ -1606,7 +1607,18 @@ exec_handle_colors (char *buf, int len)
 						if (bold)
 							colf += 8;
 
-						if (backc)
+						if (escnum[0] == 38 || escnum[0] == 48) {
+							if (escnum[1] == 2) {
+								j += sprintf(
+									&nbuf[j], "\003%s%d,%d,%d", 
+									(escnum[0] == 38) ? "\001" : "\002",	// Foreground = 004, Background = 005
+									escnum[2] % 256,						// Red
+									escnum[3] % 256,						// Green
+									escnum[4] % 256							// Blue
+								);
+							}
+						}
+						elseif (backc)
 						{
 							colb = escconv[colb % 14];
 							colf = escconv[colf % 14];
